@@ -124,6 +124,9 @@ function createTemplate(data:string[],comment:boolean,needReset:boolean) {
 
 	sameStr1.forEach(str1 => {
 		const commentText1 = getComment(str1!, true);
+		data.forEach(el => {
+
+		})
 		sameStr2.forEach(str2 => {
 			const commentText2 = getComment(str2!, false);
 		})
