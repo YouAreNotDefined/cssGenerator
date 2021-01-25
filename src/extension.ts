@@ -2,6 +2,11 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { writeFile } from 'fs';
 
+interface css {
+	pc: string,
+	sp: string
+}
+
 export function activate(context: vscode.ExtensionContext) {
 	const messageJsDir = path.join(context.extensionPath, 'src');
 	const messageJsUri = vscode.Uri.file(path.join(messageJsDir, 'message.js'));
@@ -46,29 +51,40 @@ export function activate(context: vscode.ExtensionContext) {
 			})
 		viewPanel.webview.html = getHtml(html, inssertScript);
 
+		let cssObj:css[];
+		let cssTexts = '';
 		viewPanel.webview.onDidReceiveMessage((data: string[]) => {
-			createTemplate(data,true,true);
-		});
+			cssObj = createTemplate(data, true, true);
+			cssObj.forEach(css => {
+				cssTexts = `${css.pc}\n${css.sp}\n`;
+			})
 
-		// Open a file
-		const uri = editor.document.uri.toString(true);
-		const lastSlash = uri.lastIndexOf('/');
-		const filePath = lastSlash >= 0 ? uri.substring(0, lastSlash) : '';
-		const appPathIndex = vscode.env.appRoot.lastIndexOf('resources');
-		const appPath = appPathIndex >= 0 ? vscode.env.appRoot.substring(0,appPathIndex) : '';
-		// writeFile(vscode.Uri.parse(`${filePath}/style.css`), html, (err) => {
-		writeFile('./style.css', html, (err) => {
-			if (err) {
-				vscode.window.showInformationMessage(`${err}`);
-				// vscode.window.showInformationMessage(`${appPath}`);
-			} else {
-				// vscode.window.showInformationMessage(`${appPath}style.css`);
-				vscode.window.showInformationMessage('Success!');
-				vscode.workspace.openTextDocument(`${appPath}style.css`).then(doc => {
-						vscode.window.showTextDocument(doc);
-				})
-			}
-		});
+			// Open a file
+			const uri = editor.document.uri.toString(true);
+			const lastSlash = uri.lastIndexOf('/');
+			const filePath = lastSlash >= 0 ? uri.substring(0, lastSlash) : '';
+			const appPathIndex = vscode.env.appRoot.lastIndexOf('resources');
+			const appPath = appPathIndex >= 0 ? vscode.env.appRoot.substring(0,appPathIndex) : '';
+			// writeFile(vscode.Uri.parse(`${filePath}/style.css`), html, (err) => {
+			writeFile('./style.css', cssTexts, (err) => {
+				if (err) {
+					vscode.window.showInformationMessage(`${err}`);
+					// vscode.window.showInformationMessage(`${appPath}`);
+				} else {
+					// vscode.window.showInformationMessage(`${appPath}style.css`);
+					// vscode.window.showInformationMessage('Success!');
+					// vscode.window.showInformationMessage(`${cssTexts}`)
+					vscode.workspace.openTextDocument(`${appPath}style.css`)
+						.then(doc => {
+							vscode.window.showTextDocument(doc);
+							setTimeout(() => {
+								viewPanel.dispose();
+							}, 3000);
+						})
+				}
+			});
+		})
+
 	});
 
 	context.subscriptions.push(disposable);
@@ -76,17 +92,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 function getHtml(html:string, script:string) {
 	const bodyPosition = html.lastIndexOf('</body>');
-	const bodyBeforeHtml = html.slice(0, bodyPosition - 1);
-	const bodyAfterHtml = html.slice(bodyPosition - 1);
+	const bodyBeforeHtml = html.slice(0, bodyPosition);
+	const bodyAfterHtml = html.slice(bodyPosition);
 	const scriptTag = `<script type="text/javascript" src="${script}"></script>`;
 	return `${bodyBeforeHtml}${scriptTag}${bodyAfterHtml}`;
 }
 
 function createTemplate(data:string[],comment:boolean,needReset:boolean) {
-	const pcQuery = '@media screen and (min-width:768px) { \n }';
-	const spQuery = '@media screen and (max-width:767px) { \n }';
-	const pcCommentOut = '/*===== PC =====*/\n';
-	const spCommentOut = '/*===== SP =====*/\n';
+	const pcQuery = '@media screen and (min-width:768px) { \n';
+	const spQuery = '@media screen and (max-width:767px) { \n';
+	const pc = `/*===== PC =====*/\n${pcQuery}`;
+	const sp = `/*===== SP =====*/\n${spQuery}`;
 
 	let reset = '';
 	let charSet = '';
@@ -100,37 +116,73 @@ function createTemplate(data:string[],comment:boolean,needReset:boolean) {
 		reset = `${charSet}${resetComment}${resetCss}`;
 	}
 
-	const sameStr1 = data.map(el => {
-		const underIndex = el.indexOf('__');
-		const untillUnderStr = underIndex >= 0 ? el.slice(0, underIndex) : '';
-		let beforeClassStr = '';
-		if (untillUnderStr !== beforeClassStr && untillUnderStr !== '') {
-			return untillUnderStr;
-		}
-		beforeClassStr = untillUnderStr;
-	})
+	let untillUnderStr : string[] = [];
+	let beforeLineStr : string[] = [];
 
-	const sameStr2 = data.map(el => {
-		const underIndex = el.indexOf('__');
-		const afterUnderStr = el.slice(underIndex);
-		const lineIndex = afterUnderStr.indexOf('-');
-		const beforeLineStr = lineIndex >= 0 ? afterUnderStr.slice(0, lineIndex) : '';
-		let beforeClassStr = '';
-		if (beforeLineStr !== beforeClassStr && beforeLineStr !== '') {
-			return beforeLineStr;
-		}
-		beforeClassStr = beforeLineStr;
-	})
-
-	sameStr1.forEach(str1 => {
-		const commentText1 = getComment(str1!, true);
-		data.forEach(el => {
-
+	const sameStr1 = data
+		.map((el,i) => {
+			const underIndex = el.indexOf('__');
+			const storeStr = underIndex >= 0 ? el.slice(0, underIndex) : '';
+			const hasNotStr = untillUnderStr.every(str => str !== storeStr);
+			untillUnderStr[i] = storeStr;
+			if (hasNotStr && underIndex >= 0) {
+				return untillUnderStr[i];
+			}
 		})
-		sameStr2.forEach(str2 => {
-			const commentText2 = getComment(str2!, false);
+		.filter((str) : str is Exclude<typeof str, undefined> => str !== undefined);
+
+	const sameStr2 = data
+		.map((el,i) => {
+			const underIndex = el.indexOf('_');
+			const afterUnderStr = underIndex >= 0 ? el.slice(underIndex + 2) : '';
+			const lineIndex = afterUnderStr.indexOf('-');
+			const storeStr = lineIndex >= 0 ? afterUnderStr.slice(0, lineIndex) : afterUnderStr;
+			const hasNotStr = beforeLineStr.every(str => str !== storeStr);
+			beforeLineStr[i] = storeStr;
+			if (hasNotStr && lineIndex >= 0) {
+				return beforeLineStr[i];
+			}
 		})
-	});
+		.filter((str): str is Exclude<typeof str, undefined> => str !== undefined);
+	vscode.window.showInformationMessage(`${data}`)
+
+	let css:css[] = [{ pc: '', sp: '' }];
+
+	sameStr1.forEach((str1,i) => {
+		let isFirst1 = true;
+		const commentText1 = getComment(str1, true);
+		sameStr2.forEach((str2,j) => {
+			let isFirst2 = true;
+			const commentText2 = getComment(str2, false);
+			data.forEach(className => {
+				if (className.indexOf(str1) || className.indexOf(str2)) {
+					if (className.indexOf(str1)) {
+						if (isFirst1) {
+							css[i].pc += `\n${commentText1}${pc}`;
+							css[i].sp += `\n${commentText1}${sp}`;
+							isFirst1 = false;
+						}
+					}
+					if (className.indexOf(str2)) {
+						if (isFirst2) {
+							css[i].pc += `\n${commentText2}\n`;
+							css[i].sp += `\n${commentText2}\n`;
+							isFirst2 = false;
+						}
+					}
+					css[i].pc += `.${className}{\n\n}\n`;
+					css[i].sp += `.${className}{\n\n}\n`;
+				}
+				if (sameStr2.length - 1 === j) {
+					css[i].pc += '}\n';
+					css[i].sp += '}\n';
+				}
+			})
+		});
+	})
+	vscode.window.showInformationMessage(`${css}`)
+
+	return css;
 }
 
 function getComment(text: string, isTitle: boolean) {
