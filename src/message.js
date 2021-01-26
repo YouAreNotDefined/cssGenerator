@@ -1,16 +1,25 @@
 const vscode = acquireVsCodeApi();
 
 window.onload = () => {
-  let fewClasses;
+  let containSpaceStr = [];
   const elements = [...document.querySelectorAll('[class]')];
-  const classNames = elements.map(el => {
-    const className = el.getAttribute('class');
-    if (className.indexOf(' ') >= 0) {
-      fewClasses = className.split(' ');
-      return fewClasses.forEach(fewClass => { return fewClass; });
-    } else {
+  let classNames = elements
+    .map((el, i) => {
+      const className = el.getAttribute('class');
+      if (/\s/.test(className)) {
+        containSpaceStr.push({
+          'index': i,
+          'classes': className.split(/\s/)
+        });
+      }
       return className;
-    }
-  });
-  vscode.postMessage(classNames);
+    })
+    .filter(str => !/\s/.test(str));
+  if (containSpaceStr.length >= 0) {
+    containSpaceStr.forEach(str => {
+      str['classes'].forEach((classes, i) => classNames.splice(str.index + i, 0, classes));
+    });
+  }
+  const classArray = classNames.filter((className => className.indexOf('vscode') == -1));
+  vscode.postMessage(classArray);
 }

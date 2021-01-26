@@ -101,7 +101,6 @@ function createTemplate(data, comment, needReset) {
         reset = `${charSet}${resetComment}${resetCss}`;
     }
     let untillUnderStr = [];
-    let beforeLineStr = [];
     const sameStr1 = data
         .map((el, i) => {
         const underIndex = el.indexOf('__');
@@ -113,20 +112,24 @@ function createTemplate(data, comment, needReset) {
         }
     })
         .filter((str) => str !== undefined);
+    let beforeLineStr = [];
     const sameStr2 = data
         .map((el, i) => {
-        const underIndex = el.indexOf('_');
-        const afterUnderStr = underIndex >= 0 ? el.slice(underIndex + 2) : '';
-        const lineIndex = afterUnderStr.indexOf('-');
-        const storeStr = lineIndex >= 0 ? afterUnderStr.slice(0, lineIndex) : afterUnderStr;
-        const hasNotStr = beforeLineStr.every(str => str !== storeStr);
-        beforeLineStr[i] = storeStr;
-        if (hasNotStr && lineIndex >= 0) {
-            return beforeLineStr[i];
+        const containStr2 = sameStr1.find(str1 => el.indexOf(`${str1}__`));
+        if (containStr2) {
+            const reg = new RegExp(`${containStr2}__`);
+            const str2AfterStr1 = el.replace(reg, '');
+            const lineIndex = str2AfterStr1.search(/-/);
+            const storeStr = lineIndex >= 0 ? str2AfterStr1.slice(0, lineIndex) : str2AfterStr1;
+            const hasNotStr = beforeLineStr.every(str => str !== storeStr);
+            beforeLineStr[i] = storeStr;
+            if (hasNotStr) {
+                return storeStr;
+            }
         }
     })
         .filter((str) => str !== undefined);
-    vscode.window.showInformationMessage(`${data}`);
+    vscode.window.showInformationMessage(`${sameStr2}`);
     let css = [{ pc: '', sp: '' }];
     sameStr1.forEach((str1, i) => {
         let isFirst1 = true;
