@@ -9,7 +9,7 @@ function activate(context) {
     const messageJsUri = vscode.Uri.file(path.join(messageJsDir, 'message.js'));
     const inssertScript = messageJsUri.with({ scheme: 'vscode-resource' }).toString(true);
     const env = process.env;
-    const outDir = (env.Tmp ? path.join(env.Tmp, 'cssGenerator') : '');
+    const outDir = (env.Tmp ? path.join(env.Tmp, 'CssGenerator') : '');
     const resourceRoot = [
         vscode.Uri.file(outDir),
         vscode.Uri.file(messageJsDir),
@@ -63,16 +63,16 @@ function activate(context) {
             const uri = editor.document.uri.toString(true);
             const lastSlash = uri.lastIndexOf('/');
             const filePath = lastSlash >= 0 ? uri.substring(0, lastSlash) : '';
-            const appPathIndex = vscode.env.appRoot.lastIndexOf('resources');
-            const appPath = appPathIndex >= 0 ? vscode.env.appRoot.substring(0, appPathIndex) : '';
-            // writeFile(vscode.Uri.parse(`${filePath}/style.css`), html, (err) => {
-            fs_1.writeFile('./generated.css', cssTexts, (err) => {
+            const cssUri = vscode.Uri.parse(filePath).fsPath.replace(/c:/, '');
+            // const appPathIndex = vscode.env.appRoot.lastIndexOf('resources');
+            // const appPath = appPathIndex >= 0 ? vscode.env.appRoot.substring(0,appPathIndex) : '';
+            fs_1.writeFile(`${cssUri}/generated.css`, cssTexts, (err) => {
                 if (err) {
                     vscode.window.showInformationMessage(`${err}`);
                 }
                 else {
                     vscode.window.showInformationMessage('Success!');
-                    vscode.workspace.openTextDocument(`${appPath}generated.css`)
+                    vscode.workspace.openTextDocument(`${cssUri}/generated.css`)
                         .then(doc => {
                         vscode.window.showTextDocument(doc);
                         viewPanel.dispose();
