@@ -10,16 +10,41 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:cssgenerator"
+		"onCommand:CssGenerator"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "cssgenerator",
+				"command": "CssGenerator",
 				"title": "Generate CSS"
 			}
-		]
+		],
+		"configuration":{
+			"title": "CssGenerator configuration",
+			"properties": {
+				"CssGenerator.minWidth": {
+						"type": "number",
+						"default": 768,
+						"description": "minWidth"
+				},
+				"CssGenerator.maxWidth": {
+						"type": "number",
+						"default": 767,
+						"description": "maxWidth"
+				},
+				"CssGenerator.resetCss": {
+						"type": "boolean",
+						"default": false,
+						"description": "resetCss"
+				},
+				"CssGenerator.ignorantClass": {
+						"type": "string",
+						"default": "pc-hidden,sp-hidden,js-active",
+						"description": "Please enter the class name you do not want to be reflected in the css file, separated by commas."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
