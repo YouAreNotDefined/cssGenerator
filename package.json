@@ -2,6 +2,7 @@
 	"name": "cssgenerator",
 	"displayName": "cssGenerator",
 	"description": "",
+	"publisher": "Kazuki",
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.52.0"
