@@ -91,8 +91,8 @@ function getHtml(html, script) {
     return `${bodyBeforeHtml}${scriptTag}${bodyAfterHtml}`;
 }
 function createTemplate(maxWidth, minWidth, needReset, ignorantClass, data) {
-    const pcQuery = `@media screen and (min-width:${minWidth}) { \n`;
-    const spQuery = `@media screen and (max-width:${maxWidth}) { \n`;
+    const pcQuery = `@media screen and (min-width:${minWidth}px) { \n`;
+    const spQuery = `@media screen and (max-width:${maxWidth}px) { \n`;
     const pc = `/*===== PC =====*/\n${pcQuery}`;
     const sp = `/*===== SP =====*/\n${spQuery}`;
     let unnecessaryClass = [];
@@ -121,7 +121,7 @@ function createTemplate(maxWidth, minWidth, needReset, ignorantClass, data) {
     let css = [{ pc: '', sp: '' }];
     css[0].pc += charSet;
     if (needReset) {
-        const resetComment = '\n/*==============================\nリセットCSS\n==============================*/\n/*===== PC/Tablet/SP =====*/\n';
+        const resetComment = '\n/*==============================\nresetCSS\n==============================*/\n/*===== PC/Tablet/SP =====*/\n';
         const resetCss = 'html, body, div, span, applet, object, iframe,\nh1, h2, h3, h4, h5, h6, p, blockquote, pre,\na, abbr, acronym, address, \nbig, cite, code,\ndel, dfn, em, img, ins, kbd, q, s, samp,\nsmall, strike, strong, sub, sup, tt, var,\nb, u, i, dl, dt, dd, ol, ul, li,\nfieldset, form, label, legend,\ntable, caption, tbody, tfoot, thead, tr, th, td,\narticle, aside, canvas, details, embed,\nfigure, figcaption, footer, header, hgroup,\nmenu, nav, output, ruby, section, summary,\ntime, mark, audio, video {\n\tmargin: 0;\n\tpadding: 0;\n\tborder: 0;\n\tfont-size: 100%;\n\tfont: inherit;\n\tvertical-align: baseline;\n}\n* {\n\tbox-sizing: border-box;\n\toutline: none;\n}\narticle, aside, details, figcaption, figure,\nfooter, header, hgroup, menu, nav, section {\n\tdisplay: block;\n}\nbody, html {\n\tdisplay: block;\n}\nbody {\n\t-webkit-text-size-adjust: 100%;\n}\nimg {\n\tmax-width: 100%;\n\theight: auto;\n\tvertical-align: bottom;\n}\nol, ul {\n\tlist-style: none;\n}\ntable {\n\tborder-collapse: collapse;\n\tborder-spacing: 0;\n}\nbtn {\n\tmargin: 0;\n\tpadding: 0;\n\tbackground: none;\n\tborder: 0;\n\tcursor: pointer;\n}\n\n';
         css[0].pc += resetComment + resetCss;
     }

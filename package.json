@@ -40,7 +40,7 @@
 				},
 				"CssGenerator.ignorantClass": {
 						"type": "string",
-						"default": "pc-hidden,sp-hidden,js-active",
+						"default": "",
 						"description": "Please enter the class name you do not want to be reflected in the css file, separated by commas."
 				}
 			}
