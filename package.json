@@ -8,7 +8,12 @@
 		"vscode": "^1.52.0"
 	},
 	"categories": [
+		"Formatters",
+		"Snippets",
 		"Other"
+	],
+	"keywords": [
+		"css"
 	],
 	"activationEvents": [
 		"onCommand:CssGenerator"
