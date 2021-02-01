@@ -3,7 +3,11 @@
 	"displayName": "cssGenerator",
 	"description": "",
 	"publisher": "Kazuki",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/YouAreNotDefined/cssGenerator"
+	},
 	"engines": {
 		"vscode": "^1.52.0"
 	},
