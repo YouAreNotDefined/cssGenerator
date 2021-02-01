@@ -2,6 +2,8 @@
 
 This is an extension for Visual Studio Code that allows you to create a new CSS file automatically based on an active HTML file on your Vscode window.
 
+Please note that this extension is based on BEM and somewhat orderly class name is required in this extension.
+
 ## Usage
 
 It is simple to use this.
