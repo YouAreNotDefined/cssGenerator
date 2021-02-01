@@ -42,7 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		const html = doc.getText(curSelection);
 
-		// Get classes
 		const viewPanel = vscode.window.createWebviewPanel(
 			'html', 'cssGenerator', vscode.ViewColumn.One,
 			{
@@ -103,8 +102,8 @@ function getHtml(html:string, script:string) {
 }
 
 function createTemplate(maxWidth: number, minWidth: number ,needReset: boolean,ignorantClass: string, data: string[]) {
-	const pcQuery = `@media screen and (min-width:${minWidth}) { \n`;
-	const spQuery = `@media screen and (max-width:${maxWidth}) { \n`;
+	const pcQuery = `@media screen and (min-width:${minWidth}px) { \n`;
+	const spQuery = `@media screen and (max-width:${maxWidth}px) { \n`;
 	const pc = `/*===== PC =====*/\n${pcQuery}`;
 	const sp = `/*===== SP =====*/\n${spQuery}`;
 	let unnecessaryClass: string[] = [];

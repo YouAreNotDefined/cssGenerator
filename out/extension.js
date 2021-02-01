@@ -35,7 +35,6 @@ function activate(context) {
             curSelection = new vscode.Selection(startPos, endPos);
         }
         const html = doc.getText(curSelection);
-        // Get classes
         const viewPanel = vscode.window.createWebviewPanel('html', 'cssGenerator', vscode.ViewColumn.One, {
             enableScripts: true,
             localResourceRoots: resourceRoot,
